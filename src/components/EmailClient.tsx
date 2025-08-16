@@ -190,6 +190,22 @@ const EmailClient = () => {
     });
   };
 
+  const changePassword = (accountId: string, newPassword: string) => {
+    const updatedAccounts = accounts.map(acc => 
+      acc.id === accountId ? { ...acc, password: newPassword } : acc
+    );
+    setAccounts(updatedAccounts);
+    
+    if (currentAccount?.id === accountId) {
+      setCurrentAccount({ ...currentAccount, password: newPassword });
+    }
+    
+    toast({
+      title: "Пароль изменен",
+      description: "Пароль успешно обновлен"
+    });
+  };
+
   // Mock email data loading
   const loadEmails = () => {
     if (!currentAccount) return;
@@ -240,9 +256,10 @@ const EmailClient = () => {
         onSwitchAccount={switchAccount}
         onLogout={logout}
         onDeleteAccount={deleteAccount}
+        onChangePassword={changePassword}
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         {!currentAccount ? (
           <AuthCard 
             onCreateAccount={createAccount}

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Trash2, Copy } from "lucide-react";
+import { LogOut, User, Trash2, Copy, Key } from "lucide-react";
 import { Account } from "./EmailClient";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, getAvatarColor } from "@/lib/email-utils";
@@ -20,6 +22,7 @@ interface HeaderProps {
   onSwitchAccount: (accountId: string) => void;
   onLogout: () => void;
   onDeleteAccount: (accountId: string) => void;
+  onChangePassword: (accountId: string, newPassword: string) => void;
 }
 
 const Header = ({ 
@@ -27,9 +30,12 @@ const Header = ({
   accounts, 
   onSwitchAccount, 
   onLogout, 
-  onDeleteAccount 
+  onDeleteAccount,
+  onChangePassword 
 }: HeaderProps) => {
   const { toast } = useToast();
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleCopyEmail = async (email: string) => {
     const success = await copyToClipboard(email);
@@ -39,6 +45,32 @@ const Header = ({
         description: `${email} скопирован в буфер обмена`
       });
     }
+  };
+
+  const handleChangePassword = () => {
+    if (!currentAccount) return;
+    
+    if (!newPassword || newPassword.length < 8) {
+      toast({
+        title: "Ошибка",
+        description: "Пароль должен содержать минимум 8 символов",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Ошибка", 
+        description: "Пароли не совпадают",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onChangePassword(currentAccount.id, newPassword);
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   return (
@@ -84,8 +116,42 @@ const Header = ({
                 </Button>
               </DropdownMenuTrigger>
               
-              <DropdownMenuContent className="w-80" align="end">
+              <DropdownMenuContent className="w-96" align="end">
                 <DropdownMenuLabel>Аккаунты ({accounts.length}/20)</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                {/* Смена пароля */}
+                <div className="p-3 space-y-3">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <Key className="w-4 h-4" />
+                    Смена пароля
+                  </Label>
+                  <div className="space-y-2">
+                    <Input
+                      type="password"
+                      placeholder="Новый пароль"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="h-8"
+                    />
+                    <Input
+                      type="password" 
+                      placeholder="Повторите пароль"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="h-8"
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={handleChangePassword}
+                      className="w-full"
+                      disabled={!newPassword || !confirmPassword}
+                    >
+                      Сменить пароль
+                    </Button>
+                  </div>
+                </div>
+                
                 <DropdownMenuSeparator />
                 
                 {accounts.map((account) => (
