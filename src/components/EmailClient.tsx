@@ -206,6 +206,30 @@ const EmailClient = () => {
     });
   };
 
+  const removeAccount = (accountId: string) => {
+    const updatedAccounts = accounts.filter(acc => acc.id !== accountId);
+    setAccounts(updatedAccounts);
+    
+    if (currentAccount?.id === accountId) {
+      const nextAccount = updatedAccounts.find(acc => acc.isActive) || updatedAccounts[0];
+      if (nextAccount) {
+        const finalAccounts = updatedAccounts.map(acc => ({
+          ...acc,
+          isActive: acc.id === nextAccount.id
+        }));
+        setAccounts(finalAccounts);
+        setCurrentAccount(nextAccount);
+      } else {
+        setCurrentAccount(null);
+      }
+    }
+    
+    toast({
+      title: "Выход выполнен",
+      description: "Вы вышли из аккаунта"
+    });
+  };
+
   // Mock email data loading
   const loadEmails = () => {
     if (!currentAccount) return;
@@ -257,6 +281,7 @@ const EmailClient = () => {
         onLogout={logout}
         onDeleteAccount={deleteAccount}
         onChangePassword={changePassword}
+        onRemoveAccount={removeAccount}
       />
       
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -267,21 +292,25 @@ const EmailClient = () => {
             isLoading={isLoading}
           />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EmailList 
-              emails={emails}
-              onSelectEmail={setSelectedEmail}
-              onRefresh={loadEmails}
-              isLoading={isLoading}
-              currentAccount={currentAccount}
-            />
-            
-            {selectedEmail && (
-              <EmailView 
-                email={selectedEmail}
-                onClose={() => setSelectedEmail(null)}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+            <div className="xl:col-span-1">
+              <EmailList 
+                emails={emails}
+                onSelectEmail={setSelectedEmail}
+                onRefresh={loadEmails}
+                isLoading={isLoading}
+                currentAccount={currentAccount}
               />
-            )}
+            </div>
+            
+            <div className="xl:col-span-1">
+              {selectedEmail && (
+                <EmailView 
+                  email={selectedEmail}
+                  onClose={() => setSelectedEmail(null)}
+                />
+              )}
+            </div>
           </div>
         )}
       </main>

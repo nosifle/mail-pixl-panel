@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Trash2, Copy, Key } from "lucide-react";
+import { LogOut, User, Trash2, Copy, Key, X } from "lucide-react";
 import { Account } from "./EmailClient";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, getAvatarColor } from "@/lib/email-utils";
@@ -23,6 +23,7 @@ interface HeaderProps {
   onLogout: () => void;
   onDeleteAccount: (accountId: string) => void;
   onChangePassword: (accountId: string, newPassword: string) => void;
+  onRemoveAccount: (accountId: string) => void;
 }
 
 const Header = ({ 
@@ -31,7 +32,8 @@ const Header = ({
   onSwitchAccount, 
   onLogout, 
   onDeleteAccount,
-  onChangePassword 
+  onChangePassword,
+  onRemoveAccount 
 }: HeaderProps) => {
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState("");
@@ -75,10 +77,10 @@ const Header = ({
 
   return (
     <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 bg-brand-accent rounded-full"></div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-lg sm:text-xl font-semibold">
             Почта <span className="text-brand-accent font-bold">x69x.fun</span>
           </h1>
           <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
@@ -87,15 +89,16 @@ const Header = ({
         </div>
 
         {currentAccount && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => handleCopyEmail(currentAccount.email)}
-              className="gap-2"
+              className="gap-2 hidden sm:flex"
             >
               <Copy className="w-4 h-4" />
-              {currentAccount.email}
+              <span className="hidden md:inline">{currentAccount.email}</span>
+              <span className="md:hidden">{currentAccount.email.split('@')[0]}</span>
             </Button>
 
             <DropdownMenu>
@@ -116,7 +119,7 @@ const Header = ({
                 </Button>
               </DropdownMenuTrigger>
               
-              <DropdownMenuContent className="w-96" align="end">
+              <DropdownMenuContent className="w-80 sm:w-96 max-h-[80vh] overflow-y-auto" align="end">
                 <DropdownMenuLabel>Аккаунты ({accounts.length}/20)</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
@@ -154,66 +157,84 @@ const Header = ({
                 
                 <DropdownMenuSeparator />
                 
-                {accounts.map((account) => (
-                  <DropdownMenuItem
-                    key={account.id}
-                    className={`flex items-center gap-3 p-3 ${
-                      account.isActive ? 'bg-accent' : ''
-                    }`}
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback 
-                        className="text-xs font-medium"
-                        style={{ backgroundColor: getAvatarColor(account.email) }}
-                      >
-                        {account.email[0].toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => handleCopyEmail(account.email)}
-                        className="text-sm font-medium truncate w-full text-left hover:text-brand-accent"
-                        title="Нажмите чтобы скопировать"
-                      >
-                        {account.email}
-                      </button>
-                      <p className="text-xs text-muted-foreground">
-                        {account.domain}
-                      </p>
-                    </div>
-                    
-                    <div className="flex gap-1">
-                      {!account.isActive && (
+                {/* Список аккаунтов */}
+                <div className="max-h-60 overflow-y-auto">
+                  {accounts.map((account) => (
+                    <DropdownMenuItem
+                      key={account.id}
+                      className={`flex items-center gap-3 p-2 sm:p-3 ${
+                        account.isActive ? 'bg-accent' : ''
+                      }`}
+                    >
+                      <Avatar className="w-8 h-8 flex-shrink-0">
+                        <AvatarFallback 
+                          className="text-xs font-medium"
+                          style={{ backgroundColor: getAvatarColor(account.email) }}
+                        >
+                          {account.email[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0">
+                        <button
+                          onClick={() => handleCopyEmail(account.email)}
+                          className="text-sm font-medium truncate w-full text-left hover:text-brand-accent"
+                          title="Нажмите чтобы скопировать"
+                        >
+                          {account.email}
+                        </button>
+                        <p className="text-xs text-muted-foreground">
+                          {account.domain}
+                        </p>
+                      </div>
+                      
+                      <div className="flex gap-1">
+                        {!account.isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSwitchAccount(account.id);
+                            }}
+                            className="h-7 w-7 p-0"
+                            title="Переключиться"
+                          >
+                            <User className="w-3 h-3" />
+                          </Button>
+                        )}
+                        
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onSwitchAccount(account.id);
+                            onRemoveAccount(account.id);
                           }}
-                          className="h-7 w-7 p-0"
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                          title="Выйти из аккаунта"
                         >
-                          <User className="w-4 h-4" />
+                          <X className="w-3 h-3" />
                         </Button>
-                      )}
-                      
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm(`Удалить аккаунт ${account.email}?`)) {
-                            onDeleteAccount(account.id);
-                          }
-                        }}
-                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(`Удалить аккаунт ${account.email}?`)) {
+                              onDeleteAccount(account.id);
+                            }
+                          }}
+                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                          title="Удалить аккаунт"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
                 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
