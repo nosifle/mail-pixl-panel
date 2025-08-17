@@ -11,6 +11,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { LogOut, User, Trash2, Copy, Key, X } from "lucide-react";
 import { Account } from "./EmailClient";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +49,7 @@ const Header = ({
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
 
   const handleCopyEmail = async (email: string) => {
     const success = await copyToClipboard(email);
@@ -175,6 +187,21 @@ const Header = ({
                         </AvatarFallback>
                       </Avatar>
                       
+                      <div className="flex gap-1 items-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveAccount(account.id);
+                          }}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                          title="Выйти из аккаунта"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      
                       <div className="flex-1 min-w-0">
                         <button
                           onClick={() => handleCopyEmail(account.email)}
@@ -204,33 +231,43 @@ const Header = ({
                           </Button>
                         )}
                         
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRemoveAccount(account.id);
-                          }}
-                          className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                          title="Выйти из аккаунта"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (confirm(`Удалить аккаунт ${account.email}?`)) {
-                              onDeleteAccount(account.id);
-                            }
-                          }}
-                          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                          title="Удалить аккаунт"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteAccountId(account.id);
+                              }}
+                              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                              title="Удалить аккаунт"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Удалить аккаунт?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Вы уверены, что хотите удалить аккаунт {account.email}? 
+                                Это действие нельзя отменить.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Отмена</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  onDeleteAccount(account.id);
+                                  setDeleteAccountId(null);
+                                }}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Удалить
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </DropdownMenuItem>
                   ))}
