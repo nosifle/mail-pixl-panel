@@ -178,15 +178,6 @@ const Header = ({
                         account.isActive ? 'bg-accent' : ''
                       }`}
                     >
-                      <Avatar className="w-8 h-8 flex-shrink-0">
-                        <AvatarFallback 
-                          className="text-xs font-medium"
-                          style={{ backgroundColor: getAvatarColor(account.email) }}
-                        >
-                          {account.email[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      
                       <div className="flex gap-1 items-center">
                         <Button
                           variant="ghost"
@@ -198,9 +189,18 @@ const Header = ({
                           className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
                           title="Выйти из аккаунта"
                         >
-                          <X className="w-3 h-3" />
+                          <LogOut className="w-3 h-3" />
                         </Button>
                       </div>
+                      
+                      <Avatar className="w-8 h-8 flex-shrink-0">
+                        <AvatarFallback 
+                          className="text-xs font-medium"
+                          style={{ backgroundColor: getAvatarColor(account.email) }}
+                        >
+                          {account.email[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       
                       <div className="flex-1 min-w-0">
                         <button

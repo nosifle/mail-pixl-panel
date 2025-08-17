@@ -1,1 +1,4 @@
 project_id = "sjnbfaualdhyjsebcvii"
+
+[functions.mailcow-api]
+verify_jwt = false
