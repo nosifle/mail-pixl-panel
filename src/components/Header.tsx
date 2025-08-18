@@ -22,10 +22,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LogOut, User, Trash2, Copy, Key, X } from "lucide-react";
+import { LogOut, User, Trash2, Copy, Key, Eye, EyeOff, UserPlus } from "lucide-react";
 import { Account } from "./EmailClient";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, getAvatarColor } from "@/lib/email-utils";
+import AuthDialog from "./AuthDialog";
 
 interface HeaderProps {
   currentAccount: Account | null;
@@ -35,6 +36,10 @@ interface HeaderProps {
   onDeleteAccount: (accountId: string) => void;
   onChangePassword: (accountId: string, newPassword: string) => void;
   onRemoveAccount: (accountId: string) => void;
+  onCreateAccount: (email: string, password: string, domain: string) => void;
+  onLogin: (email: string, password: string) => void;
+  isLoading: boolean;
+  onGoHome: () => void;
 }
 
 const Header = ({ 
@@ -44,12 +49,18 @@ const Header = ({
   onLogout, 
   onDeleteAccount,
   onChangePassword,
-  onRemoveAccount 
+  onRemoveAccount,
+  onCreateAccount,
+  onLogin,
+  isLoading,
+  onGoHome
 }: HeaderProps) => {
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   const handleCopyEmail = async (email: string) => {
     const success = await copyToClipboard(email);
@@ -57,6 +68,16 @@ const Header = ({
       toast({
         title: "Email скопирован",
         description: `${email} скопирован в буфер обмена`
+      });
+    }
+  };
+
+  const handleCopyPassword = async (password: string) => {
+    const success = await copyToClipboard(password);
+    if (success) {
+      toast({
+        title: "Пароль скопирован",
+        description: "Пароль скопирован в буфер обмена"
       });
     }
   };
@@ -92,9 +113,9 @@ const Header = ({
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 bg-brand-accent rounded-full"></div>
-          <h1 className="text-lg sm:text-xl font-semibold">
+          <button onClick={onGoHome} className="text-lg sm:text-xl font-semibold hover:text-brand-accent transition-colors">
             Почта <span className="text-brand-accent font-bold">x69x.fun</span>
-          </h1>
+          </button>
           <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
             демо
           </span>
@@ -111,6 +132,15 @@ const Header = ({
               <Copy className="w-4 h-4" />
               <span className="hidden md:inline">{currentAccount.email}</span>
               <span className="md:hidden">{currentAccount.email.split('@')[0]}</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onLogout}
+              className="gap-2"
+            >
+              <LogOut className="w-4 h-4" />
             </Button>
 
             <DropdownMenu>
@@ -132,7 +162,47 @@ const Header = ({
               </DropdownMenuTrigger>
               
               <DropdownMenuContent className="w-80 sm:w-96 max-h-[80vh] overflow-y-auto" align="end">
-                <DropdownMenuLabel>Аккаунты ({accounts.length}/20)</DropdownMenuLabel>
+                <DropdownMenuLabel className="flex items-center justify-between">
+                  <span>Аккаунты ({accounts.length}/20)</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAuthDialog(true)}
+                    className="gap-2 h-8 px-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Войти
+                  </Button>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                {/* Текущий пароль */}
+                <div className="p-3 space-y-3">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <Key className="w-4 h-4" />
+                    Текущий пароль
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentAccount.password}
+                      onClick={() => handleCopyPassword(currentAccount.password)}
+                      readOnly
+                      className="h-8 cursor-pointer"
+                      title="Нажмите для копирования"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                
                 <DropdownMenuSeparator />
                 
                 {/* Смена пароля */}
@@ -286,6 +356,14 @@ const Header = ({
           </div>
         )}
       </div>
+
+      <AuthDialog
+        isOpen={showAuthDialog}
+        onClose={() => setShowAuthDialog(false)}
+        onCreateAccount={onCreateAccount}
+        onLogin={onLogin}
+        isLoading={isLoading}
+      />
     </header>
   );
 };

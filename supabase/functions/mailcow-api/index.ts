@@ -70,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
       case 'login': {
         const { email, password }: LoginRequest = await req.json();
         
-        // Проверяем что аккаунт существует
+        // Проверяем что аккаунт существует через API Mailcow
         const response = await fetch(`${MAILCOW_BASE_URL}/api/v1/get/mailbox/${email}`, {
           method: 'GET',
           headers: {
@@ -80,6 +80,20 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (response.ok) {
           const accountData = await response.json();
+          
+          // Дополнительная проверка что аккаунт активен
+          if (!accountData.active) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: 'Account is disabled'
+            }), {
+              status: 401,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          // TODO: Здесь можно добавить проверку пароля через IMAP
+          // Пока возвращаем успех если аккаунт существует и активен
           return new Response(JSON.stringify({
             success: true,
             account: {
@@ -91,9 +105,12 @@ const handler = async (req: Request): Promise<Response> => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         } else {
+          const errorData = await response.text();
+          console.log('Account check failed:', response.status, errorData);
+          
           return new Response(JSON.stringify({
             success: false,
-            error: 'Account not found'
+            error: 'Account not found or invalid credentials'
           }), {
             status: 401,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -104,26 +121,64 @@ const handler = async (req: Request): Promise<Response> => {
       case 'get_emails': {
         const { email, password }: GetEmailsRequest = await req.json();
         
-        // Здесь бы нужно подключиться к IMAP серверу для получения писем
-        // Пока возвращаем mock данные, так как для полной интеграции нужен IMAP клиент
-        const mockEmails = [
-          {
-            uid: '1',
-            subject: 'Добро пожаловать в x69x.fun',
-            from: { name: 'Система', email: 'system@x69x.fun' },
-            date: new Date().toISOString(),
-            content: 'Ваш аккаунт успешно создан!',
-            attachments: [],
-            isRead: false
-          }
-        ];
+        try {
+          // Сначала проверяем что аккаунт существует
+          const accountCheck = await fetch(`${MAILCOW_BASE_URL}/api/v1/get/mailbox/${email}`, {
+            method: 'GET',
+            headers: {
+              'X-API-Key': MAILCOW_API_KEY!,
+            },
+          });
 
-        return new Response(JSON.stringify({
-          success: true,
-          emails: mockEmails
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+          if (!accountCheck.ok) {
+            return new Response(JSON.stringify({
+              success: false,
+              error: 'Account not found'
+            }), {
+              status: 404,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Здесь бы нужно подключиться к IMAP серверу для получения писем
+          // Пока возвращаем улучшенные mock данные
+          const mockEmails = [
+            {
+              uid: '1',
+              subject: 'Добро пожаловать в x69x.fun',
+              from: { name: 'Система x69x', email: 'system@x69x.fun' },
+              date: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 минут назад
+              content: 'Приветствуем вас в нашей почтовой системе! Ваш аккаунт успешно создан и готов к использованию.',
+              attachments: [],
+              isRead: false
+            },
+            {
+              uid: '2',
+              subject: 'Тестовое сообщение',
+              from: { name: 'Test Bot', email: 'test@x69x.fun' },
+              date: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 часа назад
+              content: 'Это тестовое письмо для проверки работы почтовой системы.',
+              attachments: [],
+              isRead: true
+            }
+          ];
+
+          return new Response(JSON.stringify({
+            success: true,
+            emails: mockEmails
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (error) {
+          console.error('Error getting emails:', error);
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Failed to retrieve emails'
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
       }
 
       case 'delete_account': {

@@ -2,17 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-interface AuthCardProps {
+interface AuthDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
   onCreateAccount: (email: string, password: string, domain: string) => void;
   onLogin: (email: string, password: string) => void;
   isLoading: boolean;
 }
 
-const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
+const AuthDialog = ({ isOpen, onClose, onCreateAccount, onLogin, isLoading }: AuthDialogProps) => {
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [showRegConfirm, setShowRegConfirm] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -31,31 +34,30 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
     if (!regEmail || !regPassword || !regConfirm) return;
     if (regPassword !== regConfirm) return;
     onCreateAccount(regEmail, regPassword, domain);
+    onClose();
   };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail || !loginPassword) return;
     onLogin(loginEmail, loginPassword);
+    onClose();
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Добро пожаловать</h1>
-        <p className="text-muted-foreground">
-          Создайте новый аккаунт или войдите в существующий
-        </p>
-      </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Вход в почту</DialogTitle>
+        </DialogHeader>
+        
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="login">Вход</TabsTrigger>
+            <TabsTrigger value="register">Регистрация</TabsTrigger>
+          </TabsList>
 
-      <Tabs defaultValue="login" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="login">Вход</TabsTrigger>
-          <TabsTrigger value="register">Регистрация</TabsTrigger>
-        </TabsList>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <TabsContent value="login" className="mt-0 md:col-span-1 md:order-1">
+          <TabsContent value="login" className="mt-0">
             <Card>
               <CardHeader>
                 <CardTitle>Войти в аккаунт</CardTitle>
@@ -63,9 +65,9 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="dialog-login-email">Email</Label>
                     <Input
-                      id="login-email"
+                      id="dialog-login-email"
                       type="email"
                       placeholder={`user@${domain}`}
                       value={loginEmail}
@@ -75,10 +77,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Пароль</Label>
+                    <Label htmlFor="dialog-login-password">Пароль</Label>
                     <div className="relative">
                       <Input
-                        id="login-password"
+                        id="dialog-login-password"
                         type={showLoginPassword ? "text" : "password"}
                         placeholder="Ваш пароль"
                         value={loginPassword}
@@ -97,12 +99,6 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                     </div>
                   </div>
 
-                  <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                    <strong>IMAP настройки:</strong><br />
-                    Хост: <strong>mail.x69x.fun</strong> • Порт: <strong>993</strong> • 
-                    Шифрование: <strong>TLS/SSL</strong>
-                  </div>
-
                   <Button 
                     type="submit" 
                     className="w-full"
@@ -116,7 +112,7 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="register" className="mt-0 md:col-span-1 md:order-2">
+          <TabsContent value="register" className="mt-0">
             <Card>
               <CardHeader>
                 <CardTitle>Создать новый ящик</CardTitle>
@@ -124,10 +120,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="reg-email">Имя пользователя</Label>
+                    <Label htmlFor="dialog-reg-email">Имя пользователя</Label>
                     <div className="flex">
                       <Input
-                        id="reg-email"
+                        id="dialog-reg-email"
                         placeholder="username"
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
@@ -141,10 +137,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reg-password">Пароль</Label>
+                    <Label htmlFor="dialog-reg-password">Пароль</Label>
                     <div className="relative">
                       <Input
-                        id="reg-password"
+                        id="dialog-reg-password"
                         type={showRegPassword ? "text" : "password"}
                         placeholder="Минимум 8 символов"
                         value={regPassword}
@@ -164,10 +160,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="reg-confirm">Повторите пароль</Label>
+                    <Label htmlFor="dialog-reg-confirm">Повторите пароль</Label>
                     <div className="relative">
                       <Input
-                        id="reg-confirm"
+                        id="dialog-reg-confirm"
                         type={showRegConfirm ? "text" : "password"}
                         placeholder="Ещё раз пароль"
                         value={regConfirm}
@@ -198,10 +194,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
               </CardContent>
             </Card>
           </TabsContent>
-        </div>
-      </Tabs>
-    </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default AuthCard;
+export default AuthDialog;
