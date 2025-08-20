@@ -53,11 +53,11 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TabsContent value="login" className="mt-0 md:col-span-1 md:order-1">
-            <Card>
+            <Card className="h-full">
               <CardHeader>
                 <CardTitle>Войти в аккаунт</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col h-full">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
@@ -114,12 +114,12 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
           </TabsContent>
 
           <TabsContent value="register" className="mt-0 md:col-span-1 md:order-2">
-            <Card>
+            <Card className="h-full">
               <CardHeader>
                 <CardTitle>Создать новый ящик</CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleRegister} className="space-y-4">
+              <CardContent className="flex flex-col h-full">
+                <form onSubmit={handleRegister} className="space-y-4 flex-grow flex flex-col">
                   <div className="space-y-2">
                     <Label htmlFor="reg-email">Имя пользователя</Label>
                     <div className="flex">
@@ -160,9 +160,15 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                     </div>
                   </div>
 
+                  <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                    <strong>Настройки почтового ящика:</strong><br />
+                    Домен: <strong>@x69x.fun</strong> • Лимит: <strong>20 MB</strong> • 
+                    Протокол: <strong>IMAP/SMTP</strong>
+                  </div>
+
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full mt-auto" 
                     disabled={isLoading || !regEmail || !regPassword}
                   >
                     {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
