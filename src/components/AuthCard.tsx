@@ -14,12 +14,10 @@ interface AuthCardProps {
 
 const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
   const [showRegPassword, setShowRegPassword] = useState(false);
-  const [showRegConfirm, setShowRegConfirm] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [regConfirm, setRegConfirm] = useState("");
   
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -28,8 +26,7 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regEmail || !regPassword || !regConfirm) return;
-    if (regPassword !== regConfirm) return;
+    if (!regEmail || !regPassword) return;
     onCreateAccount(regEmail, regPassword, domain);
   };
 
@@ -163,33 +160,10 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-confirm">Повторите пароль</Label>
-                    <div className="relative">
-                      <Input
-                        id="reg-confirm"
-                        type={showRegConfirm ? "text" : "password"}
-                        placeholder="Ещё раз пароль"
-                        value={regConfirm}
-                        onChange={(e) => setRegConfirm(e.target.value)}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowRegConfirm(!showRegConfirm)}
-                      >
-                        {showRegConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  </div>
-
                   <Button 
                     type="submit" 
                     className="w-full" 
-                    disabled={isLoading || !regEmail || !regPassword || regPassword !== regConfirm}
+                    disabled={isLoading || !regEmail || !regPassword}
                   >
                     {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Создать ящик
