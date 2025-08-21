@@ -54,11 +54,11 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TabsContent value="login" className="mt-0 md:col-span-2">
             <div className="md:w-1/2">
-              <Card className="h-full">
+              <Card>
                 <CardHeader>
                   <CardTitle>Войти в аккаунт</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col h-full">
+                <CardContent>
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-email">Email</Label>
@@ -117,12 +117,12 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
 
           <TabsContent value="register" className="mt-0 md:col-span-2">
             <div className="md:w-1/2 md:ml-auto">
-              <Card className="h-full">
+              <Card>
                 <CardHeader>
                   <CardTitle>Создать новый ящик</CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col h-full">
-                  <form onSubmit={handleRegister} className="space-y-4 flex-grow flex flex-col">
+                <CardContent>
+                  <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="reg-email">Имя пользователя</Label>
                       <div className="flex">
@@ -171,7 +171,7 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
 
                     <Button 
                       type="submit" 
-                      className="w-full mt-auto" 
+                      className="w-full" 
                       disabled={isLoading || !regEmail || !regPassword}
                     >
                       {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
