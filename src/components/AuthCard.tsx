@@ -51,9 +51,9 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
           <TabsTrigger value="register">Регистрация</TabsTrigger>
         </TabsList>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <TabsContent value="login" className="mt-0 md:col-span-2">
-            <div className="md:w-1/2">
+        <div className="grid grid-cols-1 gap-6">
+          <TabsContent value="login" className="mt-0">
+            <div className="max-w-2xl mx-auto">
               <Card>
                 <CardHeader>
                   <CardTitle>Войти в аккаунт</CardTitle>
@@ -115,8 +115,8 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
             </div>
           </TabsContent>
 
-          <TabsContent value="register" className="mt-0 md:col-span-2">
-            <div className="md:w-1/2 md:ml-auto">
+          <TabsContent value="register" className="mt-0">
+            <div className="max-w-2xl mx-auto">
               <Card>
                 <CardHeader>
                   <CardTitle>Создать новый ящик</CardTitle>
