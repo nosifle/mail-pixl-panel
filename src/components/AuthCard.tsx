@@ -5,14 +5,18 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface AuthCardProps {
-  onCreateAccount: (email: string, password: string, domain: string) => void;
-  onLogin: (email: string, password: string) => void;
-  isLoading: boolean;
+  // Remove these props as we'll use the hook directly
 }
 
-const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
+const AuthCard = ({}: AuthCardProps) => {
+  const navigate = useNavigate();
+  const { signUp, signIn, user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   
@@ -24,16 +28,44 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
   
   const domain = "x69x.fun";
 
-  const handleRegister = (e: React.FormEvent) => {
+  // Redirect to profile if already authenticated
+  if (user) {
+    navigate('/profile');
+    return null;
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regEmail || !regPassword) return;
-    onCreateAccount(regEmail, regPassword, domain);
+    
+    setIsLoading(true);
+    try {
+      const result = await signUp(`${regEmail}@${domain}`, regPassword);
+      if (result?.success) {
+        navigate('/profile');
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginEmail || !loginPassword) return;
-    onLogin(loginEmail, loginPassword);
+    
+    setIsLoading(true);
+    try {
+      const result = await signIn(loginEmail, loginPassword);
+      if (result?.success) {
+        navigate('/profile');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -285,11 +285,7 @@ const EmailClient = () => {
       
       <main className="max-w-7xl mx-auto px-4 py-8 flex-1">
         {!currentAccount ? (
-          <AuthCard 
-            onCreateAccount={createAccount}
-            onLogin={loginToAccount}
-            isLoading={isLoading}
-          />
+          <AuthCard />
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
             <div className="xl:col-span-1">

@@ -1,8 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Star, Users, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -26,8 +29,8 @@ const LandingPage = () => {
               <a href="#contact" className="text-foreground/70 hover:text-foreground transition-colors">
                 Контакты
               </a>
-              <Button variant="outline" size="sm">
-                Войти
+              <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>
+                Профиль
               </Button>
             </div>
           </div>
