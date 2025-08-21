@@ -1,11 +1,7 @@
-import EmailClient from "@/components/EmailClient";
+import LandingPage from "@/components/LandingPage";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-gradient-primary">
-      <EmailClient />
-    </div>
-  );
+  return <LandingPage />;
 };
 
 export default Index;
