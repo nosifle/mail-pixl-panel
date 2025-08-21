@@ -176,35 +176,6 @@ const Header = ({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 
-                {/* Текущий пароль */}
-                <div className="p-3 space-y-3">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <Key className="w-4 h-4" />
-                    Текущий пароль
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={currentAccount.password}
-                      onClick={() => handleCopyPassword(currentAccount.password)}
-                      readOnly
-                      className="h-8 cursor-pointer"
-                      title="Нажмите для копирования"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    >
-                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </Button>
-                  </div>
-                </div>
-                
-                <DropdownMenuSeparator />
-                
                 {/* Смена пароля */}
                 <div className="p-3 space-y-3">
                   <Label className="text-sm font-medium flex items-center gap-2">
