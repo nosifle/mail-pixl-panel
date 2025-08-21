@@ -46,7 +46,7 @@ const AuthCard = ({ onCreateAccount, onLogin, isLoading }: AuthCardProps) => {
       </div>
 
       <Tabs defaultValue="login" className="w-full">
-        <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-2 mb-6 h-12">
+        <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
           <TabsTrigger value="login" className="text-base py-3">Вход</TabsTrigger>
           <TabsTrigger value="register" className="text-base py-3">Регистрация</TabsTrigger>
         </TabsList>
